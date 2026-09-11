@@ -42,6 +42,7 @@ import CoffeCorner from './src/Components/BookingScreens/CoffeCorner';
 import TpPassScreen from './src/Components/HomeScreens/TpPassScreen';
 import InsuranceScreen from './src/Components/HomeScreens/InsuranceScreen';
 import AllHotels from './src/Components/HomeScreens/AllHotelsCategories';
+import NotificationsScreen from './src/Screens/NotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -150,6 +151,7 @@ const App = () => {
           <Stack.Screen name="CoffeCorner" component={CoffeCorner} />
           <Stack.Screen name="Insurance" component={InsuranceScreen} />
           <Stack.Screen name="AllHotels" component={AllHotels} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen
             name="CheckInScan"
             component={CheckInScanScreen}

@@ -224,7 +224,7 @@ const BookingScreen = ({navigation}) => {
           onPress={() => navigation?.goBack?.()}>
           <Icon name="chevron-back" size={22} color={INK} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Booking</Text>
+        <Text style={styles.headerTitle}>My Bookings</Text>
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.7}

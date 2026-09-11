@@ -387,7 +387,10 @@ const HomeScreen = ({navigation}) => {
             <Text style={styles.name}>Rahul Sharma</Text>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.bellButton}>
+            <TouchableOpacity
+              style={styles.bellButton}
+              activeOpacity={0.7}
+              onPress={() => navigation?.navigate?.('Notifications')}>
               <Icon name="notifications-outline" size={18} color="#FFFFFF" />
             </TouchableOpacity>
             <Image
