@@ -9,27 +9,24 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const INK = '#0F172A';
-const GRAY = '#64748B';
-const BLUE = '#2563EB';
-const GREEN = '#16A34A';
-const RED = '#DC2626';
-const BG = '#F8FAFC';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
+const WHITE = '#FFFFFF';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const TINT_MINT = '#E1EEE8';
+const ICON_MINT = '#1F6F5C';
+const TINT_PEACH = '#FBEAE0';
+const ICON_PEACH = '#C2703D';
+const RED = '#C0392B';
 
 const BALANCE = {
   total: 4084,
   referralIncome: 2450,
   cashback: 380,
 };
-
-const QUICK_ACTIONS = [
-  {id: 'add', label: 'Add Money', icon: 'add-circle-outline', tint: '#ECEBFE', iconColor: '#6366F1'},
-  {id: 'withdraw', label: 'Withdraw', icon: 'business-outline', tint: '#E9FBEF', iconColor: GREEN},
-  {id: 'send', label: 'Send', icon: 'paper-plane-outline', tint: '#FFF1E4', iconColor: '#F97316'},
-];
 
 const TRANSACTIONS = [
   {
@@ -38,8 +35,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 28, 2:14 PM',
     amount: 200,
     icon: 'gift-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_PEACH,
+    iconColor: ICON_PEACH,
   },
   {
     id: 't2',
@@ -47,8 +44,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 28, 9:42 AM',
     amount: -146,
     icon: 'car-outline',
-    tint: '#FFF1E4',
-    iconColor: '#F97316',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't3',
@@ -56,8 +53,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 27, 6:30 PM',
     amount: 50,
     icon: 'trophy-outline',
-    tint: '#E9FBEF',
-    iconColor: GREEN,
+    tint: TINT_PEACH,
+    iconColor: ICON_PEACH,
   },
   {
     id: 't4',
@@ -65,8 +62,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't5',
@@ -74,8 +71,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't6',
@@ -83,8 +80,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't7',
@@ -92,8 +89,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't8',
@@ -101,8 +98,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
   {
     id: 't9',
@@ -110,8 +107,8 @@ const TRANSACTIONS = [
     dateLabel: 'Jul 26, 3:15 PM',
     amount: -3200,
     icon: 'business-outline',
-    tint: '#FCEAF3',
-    iconColor: '#EC4899',
+    tint: TINT_MINT,
+    iconColor: ICON_MINT,
   },
 ];
 
@@ -130,7 +127,7 @@ const WalletScreen = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle('dark-content');
-      StatusBar.setBackgroundColor('#FFFFFF');
+      StatusBar.setBackgroundColor(CREAM);
       return () => {};
     }, []),
   );
@@ -151,7 +148,7 @@ const WalletScreen = ({navigation}) => {
             </Text>
             <Text style={styles.txnDate}>{item.dateLabel}</Text>
           </View>
-          <Text style={[styles.txnAmount, {color: isCredit ? GREEN : RED}]}>
+          <Text style={[styles.txnAmount, {color: isCredit ? ICON_MINT : RED}]}>
             {formatAmount(item.amount)}
           </Text>
         </View>
@@ -162,29 +159,22 @@ const WalletScreen = ({navigation}) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
 
       <View style={[styles.header, {paddingTop: insets.top + 8}]}>
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.7}
           onPress={() => navigation?.goBack?.()}>
-          <Icon name="chevron-back" size={22} color={INK} />
+          <Icon name="chevron-back" size={20} color={TEXT_DARK} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Wallet</Text>
-        <View style={styles.backButton} />
+        <View style={styles.headerSpacer} />
       </View>
 
       {/* Fixed section — stays in place while only the transactions below scroll */}
       <View style={styles.fixedTop}>
-        <LinearGradient
-          colors={['#2F6FED', '#3B82F6']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          style={styles.balanceCard}>
-          <View style={styles.balanceBubbleLarge} />
-          <View style={styles.balanceBubbleSmall} />
-
+        <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
           <Text style={styles.balanceValue}>
             ₹{BALANCE.total.toLocaleString('en-IN')}
@@ -204,20 +194,17 @@ const WalletScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
-        </LinearGradient>
 
-        <View style={styles.quickActionsRow}>
-          {QUICK_ACTIONS.map(action => (
-            <TouchableOpacity
-              key={action.id}
-              style={styles.quickActionCard}
-              activeOpacity={0.8}>
-              <View style={[styles.quickActionIconWrap, {backgroundColor: action.tint}]}>
-                <Icon name={action.icon} size={22} color={action.iconColor} />
-              </View>
-              <Text style={styles.quickActionLabel}>{action.label}</Text>
+          <View style={styles.cardActionsRow}>
+            <TouchableOpacity style={styles.addMoneyButton} activeOpacity={0.85}>
+              <Icon name="add-circle-outline" size={17} color={DEEP_GREEN} />
+              <Text style={styles.addMoneyButtonText}>Add Money</Text>
             </TouchableOpacity>
-          ))}
+            <TouchableOpacity style={styles.withdrawButton} activeOpacity={0.85}>
+              <Icon name="arrow-down-circle-outline" size={17} color={CREAM} />
+              <Text style={styles.withdrawButtonText}>Withdraw</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.sectionHeaderRow}>
@@ -242,28 +229,34 @@ const WalletScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: CREAM,
   },
 
-  // Header
+  // Header — same trick as Rewards' header: an invisible spacer on the
+  // right matches the back button's width so space-between centers the
+  // title, without leaving a stray visible box sitting there.
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
   backButton: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  headerSpacer: {
+    width: 40,
+  },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '700',
-    color: INK,
+    fontWeight: '800',
+    color: TEXT_DARK,
   },
 
   // Fixed section above the scrollable list
@@ -282,99 +275,82 @@ const styles = StyleSheet.create({
   // Balance card
   balanceCard: {
     marginTop: 16,
-    borderRadius: 24,
-    padding: 20,
-    overflow: 'hidden',
-    shadowColor: '#2563EB',
-    shadowOffset: {width: 0, height: 8},
-    shadowOpacity: 0.22,
-    shadowRadius: 16,
-    elevation: 5,
-  },
-  balanceBubbleLarge: {
-    position: 'absolute',
-    top: -40,
-    right: -30,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  balanceBubbleSmall: {
-    position: 'absolute',
-    bottom: -20,
-    right: 60,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 22,
+    padding: 16,
+    backgroundColor: DEEP_GREEN,
   },
   balanceLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '500',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'rgba(245,240,228,0.7)',
   },
   balanceValue: {
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
-    marginTop: 4,
+    color: CREAM,
+    marginTop: 2,
   },
   balanceSubRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
+    gap: 10,
+    marginTop: 14,
   },
   balanceSubCard: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: 'rgba(245,240,228,0.12)',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   balanceSubLabel: {
     fontSize: 11,
     fontWeight: '500',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'rgba(245,240,228,0.7)',
   },
   balanceSubValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: CREAM,
     marginTop: 2,
   },
 
-  // Quick actions
-  quickActionsRow: {
+  // Add Money / Withdraw — inside the balance card
+  cardActionsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+    gap: 10,
+    marginTop: 12,
   },
-  quickActionCard: {
+  addMoneyButton: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 14,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  quickActionIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 7,
+    backgroundColor: CREAM,
+    borderRadius: 12,
+    paddingVertical: 9,
   },
-  quickActionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: INK,
-    marginTop: 8,
-    textAlign: 'center',
+  addMoneyButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: DEEP_GREEN,
+  },
+  withdrawButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(245,240,228,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,240,228,0.4)',
+    borderRadius: 12,
+    paddingVertical: 9,
+  },
+  withdrawButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: CREAM,
   },
 
   // Section header
@@ -387,13 +363,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '700',
-    color: INK,
+    fontWeight: '800',
+    color: TEXT_DARK,
   },
   seeAll: {
     fontSize: 12,
     fontWeight: '600',
-    color: BLUE,
+    color: DEEP_GREEN,
   },
 
   // Transaction card
@@ -401,14 +377,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: WHITE,
     borderRadius: 16,
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
   },
   txnIconWrap: {
     width: 44,
@@ -424,11 +395,11 @@ const styles = StyleSheet.create({
   txnTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
   },
   txnDate: {
     fontSize: 12,
-    color: GRAY,
+    color: TEXT_MUTED,
     marginTop: 3,
   },
   txnAmount: {

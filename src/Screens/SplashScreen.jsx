@@ -1,341 +1,123 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import React, {useCallback} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, StatusBar} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 // RN's built-in SafeAreaView is a no-op on Android; this one actually
 // measures real insets on both platforms (required now that Android 15+
 // enforces edge-to-edge for all screens, not just ones that opt in).
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Video from 'react-native-video';
-
-const VIDEO_WIDTH = 256;
-const VIDEO_HEIGHT = 160;
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const SplashScreen = ({navigation}) => {
-    const HandleLoginpage=()=>{
-        navigation.navigate("Login")
-    }
+  const handleGetStarted = () => {
+    navigation.navigate('Login');
+  };
+
+  // Dark green background needs light status bar icons; App.jsx's global
+  // default is dark-content, so this screen opts into light-content only
+  // while it's focused and restores the default on the way out.
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      StatusBar.setBackgroundColor(DEEP_GREEN);
+      return () => {
+        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBackgroundColor('#FFFFFF');
+      };
+    }, []),
+  );
+
   return (
     <View style={styles.screen}>
-      {/* Background decoration */}
-      <View style={styles.circleTopRight} />
-      <View style={styles.circleBottomLeft} />
-      <View style={styles.circleAccent} />
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        bounces={false}>
-        {/* Top image area */}
-        <SafeAreaView style={styles.imageArea}>
-          <View style={styles.imageWrapper}>
-            {/* <View style={styles.imageCard}>
-              <Image
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=600&fit=crop&auto=format',
-                }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={styles.imageOverlay} />
-            </View> */}
-
-            {/* Floating cards */}
-            {/* <View style={[styles.floatingCard, styles.taxiCard]}>
-              <Text style={styles.cardEmoji}>🚖</Text>
-              <View>
-                <Text style={styles.cardTitle}>Taxi Nearby</Text>
-                <Text style={styles.cardSubtitleGreen}>3 min away</Text>
-              </View>
-            </View>
-
-            <View style={[styles.floatingCard, styles.hotelCard]}>
-              <Text style={styles.cardEmoji}>🏨</Text>
-              <View>
-                <Text style={styles.cardTitle}>Hotels</Text>
-                <Text style={styles.cardSubtitleAmber}>Best Deals</Text>
-              </View>
-            </View> */}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centerArea}>
+          <View style={styles.logoBadge}>
+            <Icon name="home-outline" size={38} color={CREAM} />
           </View>
-
-          {/* Car animation */}
-          <View style={styles.videoCard}>
-            <Video
-              source={require('../assets/videos/camper-van.mp4')}
-              style={StyleSheet.absoluteFill}
-              resizeMode="cover"
-              repeat
-              muted
-              playInBackground={false}
-              playWhenInactive={false}
-            />
-          </View>
-        </SafeAreaView>
-
-        {/* Bottom sheet */}
-        <View style={styles.bottomSheet}>
-          <View style={styles.brandRow}>
-            <View style={styles.logoBadge}>
-              <Text style={styles.logoText}>T</Text>
-            </View>
-            <Text style={styles.brandName}>TravelHub</Text>
-          </View>
-
-          <Text style={styles.headline}>
-            One App.{'\n'}Every Journey.{'\n'}Every Booking.
-          </Text>
-
-          <Text style={styles.subheadline}>
-            Book taxis, hotels, homestays, travel insurance, and transport
-            services — all in one place.
-          </Text>
-
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={HandleLoginpage}
-              activeOpacity={0.85}>
-              <Text style={styles.primaryButtonText}>Get Started</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={HandleLoginpage}
-              activeOpacity={0.85}>
-              <Text style={styles.secondaryButtonText}>Login</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.terms}>
-            By continuing, you agree to our{' '}
-            <Text style={styles.termsLink}>Terms & Privacy Policy</Text>
+          <Text style={styles.brandName}>AARVI</Text>
+          <Text style={styles.tagline}>
+            Stays, rides, insurance & more —{'\n'}one membership.
           </Text>
         </View>
-      </ScrollView>
+
+        <View style={styles.bottomArea}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={handleGetStarted}
+            activeOpacity={0.85}>
+            <Text style={styles.primaryButtonText}>Get Started</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.terms}>
+            By continuing, you agree to AARVI's Terms of Service and Privacy
+            Policy.
+          </Text>
+        </View>
+      </SafeAreaView>
     </View>
   );
 };
 
-const BLUE = '#0057FF';
-const BLUE_DARK = '#0040CC';
-const AMBER = '#F59E0B';
-const GREEN = '#16A34A';
-const INK = '#111827';
-const GRAY = '#6B7280';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BLUE,
-    overflow: 'hidden',
+    backgroundColor: DEEP_GREEN,
   },
-  scrollContent: {
-    flexGrow: 1,
+  safeArea: {
+    flex: 1,
   },
-  circleTopRight: {
-    position: 'absolute',
-    top: -80,
-    right: -80,
-    width: 256,
-    height: 256,
-    borderRadius: 128,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  circleBottomLeft: {
-    position: 'absolute',
-    bottom: 160,
-    left: -40,
-    width: 192,
-    height: 192,
-    borderRadius: 96,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  circleAccent: {
-    position: 'absolute',
-    top: '25%',
-    left: '50%',
-    marginLeft: -64,
-    width: 128,
-    height: 128,
-    borderRadius: 64,
-    backgroundColor: 'rgba(245,158,11,0.2)',
-  },
-  imageArea: {
+  centerArea: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
-    paddingTop: 32,
-  },
-  imageWrapper: {
-    position: 'relative',
-  },
-  imageCard: {
-    width: 256,
-    height: 256,
-    borderRadius: 24,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 12},
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  imageOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,87,255,0.25)',
-  },
-  floatingCard: {
-    position: 'absolute',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  taxiCard: {
-    bottom: -16,
-    left: -32,
-  },
-  hotelCard: {
-    top: -16,
-    right: -32,
-  },
-  videoCard: {
-    width: VIDEO_WIDTH,
-    height: VIDEO_HEIGHT,
-    marginTop: 28,
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: '#000000',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 8},
-    shadowOpacity: 0.15,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  cardEmoji: {
-    fontSize: 22,
-  },
-  cardTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: INK,
-  },
-  cardSubtitleGreen: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: GREEN,
-  },
-  cardSubtitleAmber: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: AMBER,
-  },
-  bottomSheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 40,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    paddingHorizontal: 40,
   },
   logoBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 12,
-    backgroundColor: BLUE,
+    width: 96,
+    height: 96,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.10)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  logoText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
+    marginBottom: 24,
   },
   brandName: {
-    color: BLUE,
-    fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 32,
+    fontWeight: '800',
+    color: CREAM,
+    letterSpacing: 1,
   },
-  headline: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: INK,
-    lineHeight: 32,
-    marginBottom: 12,
+  tagline: {
+    marginTop: 14,
+    fontSize: 15,
+    lineHeight: 22,
+    color: 'rgba(245,240,228,0.72)',
+    textAlign: 'center',
   },
-  subheadline: {
-    color: GRAY,
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 32,
-  },
-  buttonGroup: {
-    gap: 12,
+  bottomArea: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
   },
   primaryButton: {
     width: '100%',
-    backgroundColor: BLUE,
-    paddingVertical: 16,
-    borderRadius: 16,
+    backgroundColor: CREAM,
+    paddingVertical: 18,
+    borderRadius: 18,
     alignItems: 'center',
-    shadowColor: BLUE_DARK,
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  secondaryButton: {
-    width: '100%',
-    borderWidth: 2,
-    borderColor: BLUE,
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: BLUE,
-    fontWeight: '600',
+    color: DEEP_GREEN,
+    fontWeight: '700',
     fontSize: 16,
   },
   terms: {
+    marginTop: 16,
     textAlign: 'center',
     fontSize: 12,
-    color: GRAY,
-    marginTop: 15,
-    marginBottom:20
-  },
-  termsLink: {
-    color: BLUE,
-    fontWeight: '500',
+    lineHeight: 17,
+    color: 'rgba(245,240,228,0.55)',
   },
 });
 

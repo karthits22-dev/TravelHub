@@ -32,16 +32,25 @@ import {
   lerpCoordinate,
 } from '../../Utils/distance';
 import {resolveCurrentPosition} from '../../Utils/locationPermission';
+import {requireMembership} from '../Common/MembersOnly';
 
-const BLUE = '#0057FF';
-const GREEN = '#16A34A';
-const RED = '#DC2626';
-const INK = '#111827';
-const GRAY = '#6B7280';
-const BORDER = '#E5E7EB';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
+const WHITE = '#FFFFFF';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const BORDER = '#E4DFD2';
+const TINT_MINT = '#E1EEE8';
+const ICON_MINT = '#1F6F5C';
+const RED = '#C0392B';
+const DISABLED_BG = '#DAD4C4';
+// Kept as separate names from the theme accent so the pickup/drop dots and
+// live-tracking markers stay a recognizable green/red pair, independent of
+// wherever DEEP_GREEN itself is used for buttons and selected states.
+const GREEN = ICON_MINT;
 
 const BANGALORE_FALLBACK = {latitude: 12.9716, longitude: 77.5946};
-const MAP_HEIGHT = 260;
+const MAP_HEIGHT = 200;
 
 const VEHICLES = [
   {
@@ -492,6 +501,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 
   const handleBookRide = useCallback(() => {
     if (!pickup || !drop) return;
+    if (!requireMembership(navigation)) return;
     setBooking(true);
 
     setTimeout(() => {
@@ -535,7 +545,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -543,16 +553,15 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
           style={styles.headerButton}
           onPress={() => navigation?.goBack?.()}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <Icon name="close" size={22} color={INK} />
+          <Icon name="chevron-back" size={16} color={TEXT_DARK} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {captainInfo
             ? captainArrived
               ? 'Captain has arrived'
               : 'Your captain is on the way'
-            : 'Book Your Ride'}
+            : 'Book a Ride'}
         </Text>
-        <View style={styles.headerButton} />
       </View>
 
       {/* Fixed map — sits outside the ScrollView below so it stays put and
@@ -584,7 +593,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 
         {mapPickLoading && (
           <View style={styles.mapPickBadge}>
-            <ActivityIndicator size="small" color={BLUE} />
+            <ActivityIndicator size="small" color={DEEP_GREEN} />
             <Text style={styles.mapPickBadgeText}>Setting location…</Text>
           </View>
         )}
@@ -596,9 +605,9 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
           disabled={locating}
           hitSlop={{top: 6, bottom: 6, left: 6, right: 6}}>
           {locating ? (
-            <ActivityIndicator size="small" color={BLUE} />
+            <ActivityIndicator size="small" color={DEEP_GREEN} />
           ) : (
-            <Icon name="locate" size={18} color={BLUE} />
+            <Icon name="locate" size={16} color={DEEP_GREEN} />
           )}
         </TouchableOpacity>
       </View>
@@ -607,7 +616,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
         {captainInfo ? (
           <View style={styles.trackingCard}>
             <View style={styles.trackingEtaBadge}>
-              <Icon name="time-outline" size={14} color={BLUE} />
+              <Icon name="time-outline" size={14} color={DEEP_GREEN} />
               <Text style={styles.trackingEtaText}>
                 {captainArrived ? 'Arrived' : formatCountdown(captainEtaSeconds)}
               </Text>
@@ -615,7 +624,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 
             <View style={styles.captainRow}>
               <View style={styles.captainAvatar}>
-                <Taxicon name="local-taxi" size={22} color={BLUE} />
+                <Taxicon name="local-taxi" size={22} color={DEEP_GREEN} />
               </View>
               <View style={styles.captainInfo}>
                 <Text style={styles.captainName}>{captainInfo.name}</Text>
@@ -628,10 +637,10 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
                 </View>
               </View>
               <TouchableOpacity style={styles.captainActionButton} activeOpacity={0.8}>
-                <Icon name="call" size={16} color={BLUE} />
+                <Icon name="call" size={16} color={DEEP_GREEN} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.captainActionButton} activeOpacity={0.8}>
-                <Icon name="chatbubble-ellipses" size={16} color={BLUE} />
+                <Icon name="chatbubble-ellipses" size={16} color={DEEP_GREEN} />
               </TouchableOpacity>
             </View>
 
@@ -663,6 +672,32 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
           </View>
         ) : (
           <>
+        {/* Vehicles */}
+        <Text style={styles.sectionTitle}>Choose vehicle type</Text>
+        <View style={styles.vehicleGrid}>
+          {VEHICLES.map(vehicle => {
+            const selected = vehicle.id === selectedVehicle;
+            return (
+              <TouchableOpacity
+                key={vehicle.id}
+                style={[styles.vehicleTile, selected && styles.vehicleTileSelected]}
+                activeOpacity={0.8}
+                onPress={() => setSelectedVehicle(vehicle.id)}>
+                <Taxicon
+                  name={vehicle.icon}
+                  size={19}
+                  color={selected ? DEEP_GREEN : TEXT_MUTED}
+                />
+                <Text
+                  style={[styles.vehicleTileLabel, selected && styles.vehicleTileLabelSelected]}
+                  numberOfLines={1}>
+                  {vehicle.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         {/* Pickup / Drop card */}
         <View style={styles.card}>
           <TouchableOpacity
@@ -688,7 +723,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
             activeOpacity={0.7}
             onPress={handleSwap}
             disabled={!pickup && !drop}>
-            <Icon name="swap-vertical" size={16} color={pickup || drop ? BLUE : '#C7CDD6'} />
+            <Icon name="swap-vertical" size={14} color={pickup || drop ? DEEP_GREEN : '#C7CDD6'} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -710,7 +745,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 
           {(routeLoading || route) && (
             <View style={styles.routeInfoRow}>
-              <Icon name="navigate-outline" size={13} color={GRAY} />
+              <Icon name="navigate-outline" size={12} color={TEXT_MUTED} />
               <Text style={styles.routeInfoText}>
                 {routeLoading
                   ? 'Calculating route…'
@@ -747,12 +782,12 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
         </View> */}
 
         {/* Date / Time pills */}
-        <View style={styles.dateTimeRow}>
+        {/* <View style={styles.dateTimeRow}>
           <TouchableOpacity
             style={styles.dateTimeCard}
             activeOpacity={scheduleMode === 'later' ? 0.7 : 1}
             onPress={() => scheduleMode === 'later' && setPickerMode('date')}>
-            <Icon name="calendar-outline" size={16} color={GRAY} />
+            <Icon name="calendar-outline" size={14} color={TEXT_MUTED} />
             <View>
               <Text style={styles.dateTimeLabel}>Date</Text>
               <Text style={styles.dateTimeValue}>{dateLabel}</Text>
@@ -762,13 +797,13 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
             style={styles.dateTimeCard}
             activeOpacity={scheduleMode === 'later' ? 0.7 : 1}
             onPress={() => scheduleMode === 'later' && setPickerMode('time')}>
-            <Icon name="time-outline" size={16} color={GRAY} />
+            <Icon name="time-outline" size={14} color={TEXT_MUTED} />
             <View>
               <Text style={styles.dateTimeLabel}>Time</Text>
               <Text style={styles.dateTimeValue}>{timeLabel}</Text>
             </View>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {pickerMode && (
           <DateTimePicker
@@ -779,50 +814,22 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
           />
         )}
 
-        {/* Vehicles */}
-        <Text style={styles.sectionTitle}>Choose Vehicle</Text>
-        <View style={styles.vehicleList}>
-          {VEHICLES.map(vehicle => {
-            const selected = vehicle.id === selectedVehicle;
-            const fare = applyDiscount(computeFare(vehicle, route), appliedPromo);
-            return (
-              <TouchableOpacity
-                key={vehicle.id}
-                style={[styles.vehicleCard, selected && styles.vehicleCardSelected]}
-                activeOpacity={0.8}
-                onPress={() => setSelectedVehicle(vehicle.id)}>
-                <Taxicon name={vehicle.icon} size={26} color={selected ? BLUE : '#94A3B8'} />
-                <View style={styles.vehicleInfo}>
-                  <Text style={styles.vehicleLabel}>{vehicle.label}</Text>
-                  <Text style={styles.vehicleDescription}>
-                    {vehicle.description} · {vehicle.arrivalMinutes} min
-                  </Text>
-                </View>
-                <View style={styles.vehiclePriceWrap}>
-                  <Text style={styles.vehiclePrice}>₹{fare.toLocaleString('en-IN')}</Text>
-                  {selected && <Text style={styles.vehicleSelectedText}>Selected</Text>}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
         {/* Promo code */}
         <View style={styles.promoCard}>
           {appliedPromo ? (
             <View style={styles.promoAppliedRow}>
-              <Icon name="pricetag" size={16} color={GREEN} />
+              <Icon name="pricetag" size={14} color={GREEN} />
               <Text style={styles.promoAppliedText}>
                 {appliedPromo.code} applied — {appliedPromo.label}
               </Text>
               <TouchableOpacity onPress={handleRemovePromo} hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-                <Icon name="close-circle" size={18} color={GRAY} />
+                <Icon name="close-circle" size={16} color={TEXT_MUTED} />
               </TouchableOpacity>
             </View>
           ) : (
             <>
               <View style={styles.promoInputRow}>
-                <Icon name="pricetag-outline" size={16} color={GRAY} />
+                <Icon name="pricetag-outline" size={14} color={TEXT_MUTED} />
                 <TextInput
                   value={promoInput}
                   onChangeText={text => {
@@ -830,7 +837,7 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
                     setPromoError('');
                   }}
                   placeholder="Have a promo code?"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={TEXT_MUTED}
                   autoCapitalize="characters"
                   style={styles.promoInput}
                 />
@@ -845,6 +852,35 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
             </>
           )}
         </View>
+
+        {/* Estimated fare */}
+        <View style={styles.fareCard}>
+          <View style={styles.fareTextArea}>
+            <Text style={styles.fareLabel}>Estimated fare</Text>
+            <Text style={styles.fareMeta}>
+              {routeLoading
+                ? 'Calculating route…'
+                : route
+                ? `${route.distanceText} · approx ${route.durationText}`
+                : 'Set pickup & drop to estimate'}
+            </Text>
+          </View>
+          <View style={styles.fareValueWrap}>
+            {appliedPromo && rawFare !== finalFare && (
+              <Text style={styles.fareStrike}>₹{rawFare.toLocaleString('en-IN')}</Text>
+            )}
+            <Text style={styles.fareValue}>₹{finalFare.toLocaleString('en-IN')}</Text>
+          </View>
+        </View>
+
+        {/* Pay with — static for now, same as the rest of the app's
+            not-yet-integrated payment steps (e.g. Hotels & Stays checkout). */}
+        <Text style={styles.fieldLabel}>Pay with</Text>
+        <TouchableOpacity style={styles.payWithRow} activeOpacity={0.85}>
+          <Icon name="card-outline" size={16} color={TEXT_DARK} />
+          <Text style={styles.payWithText}>Wallet · ₹640 balance</Text>
+          <Icon name="chevron-forward" size={14} color={TEXT_MUTED} />
+        </TouchableOpacity>
           </>
         )}
       </ScrollView>
@@ -864,26 +900,18 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.footer}>
-          <View>
-            <Text style={styles.footerFareLabel}>Estimated fare</Text>
-            <View style={styles.footerFareRow}>
-              {appliedPromo && rawFare !== finalFare && (
-                <Text style={styles.footerFareStrike}>₹{rawFare.toLocaleString('en-IN')}</Text>
-              )}
-              <Text style={styles.footerFareValue}>₹{finalFare.toLocaleString('en-IN')}</Text>
-            </View>
-          </View>
+        <View style={styles.footerSingle}>
           <TouchableOpacity
             style={[styles.bookButton, !canBook && styles.bookButtonDisabled]}
             activeOpacity={0.85}
             disabled={!canBook}
             onPress={handleBookRide}>
             {booking ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={CREAM} />
             ) : (
               <Text style={styles.bookButtonText}>
-                {scheduleMode === 'now' ? 'Book Ride' : 'Schedule Ride'}
+                {scheduleMode === 'now' ? 'Book Ride' : 'Schedule Ride'} · ₹
+                {finalFare.toLocaleString('en-IN')}
               </Text>
             )}
           </TouchableOpacity>
@@ -906,28 +934,29 @@ const TaxiScreen = ({navigation, route: navRoute}) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: CREAM,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    gap: 14,
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BORDER,
+    backgroundColor: CREAM,
   },
   headerButton: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
+    flex: 1,
     fontSize: 16,
-    fontWeight: '700',
-    color: INK,
+    fontWeight: '800',
+    color: TEXT_DARK,
   },
   scrollContent: {
     paddingBottom: 24,
@@ -961,7 +990,7 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: 'rgba(22,163,74,0.18)',
+    backgroundColor: 'rgba(31,111,92,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -974,7 +1003,7 @@ const styles = StyleSheet.create({
   liveBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
     letterSpacing: 0.2,
   },
   mapPickBadge: {
@@ -997,7 +1026,7 @@ const styles = StyleSheet.create({
   mapPickBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: BLUE,
+    color: DEEP_GREEN,
   },
   // Compact icon-only FAB, matching the standard "recenter" button pattern
   // native map apps use — a text pill felt cramped on a 220px map card.
@@ -1005,9 +1034,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 12,
     right: 12,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
@@ -1020,17 +1049,12 @@ const styles = StyleSheet.create({
 
   // Pickup / drop card
   card: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
+    backgroundColor: WHITE,
+    marginHorizontal: 20,
     marginTop: 16,
     borderRadius: 18,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
   },
   locationRow: {
     flexDirection: 'row',
@@ -1058,21 +1082,21 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   locationLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
-    color: GRAY,
+    color: TEXT_MUTED,
     letterSpacing: 0.5,
   },
   locationValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: INK,
+    color: TEXT_DARK,
     marginTop: 2,
   },
   locationPlaceholder: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: TEXT_MUTED,
     marginTop: 2,
   },
   swapButton: {
@@ -1098,8 +1122,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   routeInfoText: {
-    fontSize: 12,
-    color: GRAY,
+    fontSize: 11,
+    color: TEXT_MUTED,
     fontWeight: '500',
   },
 
@@ -1129,106 +1153,85 @@ const styles = StyleSheet.create({
   scheduleOptionText: {
     fontSize: 12,
     fontWeight: '600',
-    color: GRAY,
+    color: TEXT_MUTED,
   },
   scheduleOptionTextActive: {
-    color: BLUE,
+    color: DEEP_GREEN,
   },
 
   // Date / time
   dateTimeRow: {
     flexDirection: 'row',
     gap: 12,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 12,
   },
   dateTimeCard: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFFFFF',
+    gap: 7,
+    backgroundColor: WHITE,
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   dateTimeLabel: {
-    fontSize: 10,
-    color: GRAY,
+    fontSize: 9,
+    color: TEXT_MUTED,
     fontWeight: '600',
   },
   dateTimeValue: {
-    fontSize: 13,
-    color: INK,
+    fontSize: 12,
+    color: TEXT_DARK,
     fontWeight: '700',
     marginTop: 1,
   },
 
   // Vehicles
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: INK,
-    marginHorizontal: 16,
-    marginTop: 20,
+    fontSize: 14,
+    fontWeight: '800',
+    color: TEXT_DARK,
+    marginHorizontal: 20,
+    marginTop: 4,
     marginBottom: 10,
   },
-  vehicleList: {
-    marginHorizontal: 16,
-    gap: 10,
-  },
-  vehicleCard: {
+  vehicleGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 10,
+    marginHorizontal: 20,
+  },
+  vehicleTile: {
+    width: '31.5%',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 14,
+    backgroundColor: WHITE,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: BORDER,
     paddingVertical: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    gap: 12,
   },
-  vehicleCardSelected: {
-    borderColor: BLUE,
+  vehicleTileSelected: {
+    borderColor: DEEP_GREEN,
+    backgroundColor: TINT_MINT,
   },
-  vehicleInfo: {
-    flex: 1,
-  },
-  vehicleLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: INK,
-  },
-  vehicleDescription: {
+  vehicleTileLabel: {
     fontSize: 11,
-    color: GRAY,
-    marginTop: 2,
-  },
-  vehiclePriceWrap: {
-    alignItems: 'flex-end',
-  },
-  vehiclePrice: {
-    fontSize: 14,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_MUTED,
+    marginTop: 6,
   },
-  vehicleSelectedText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: GREEN,
-    marginTop: 2,
+  vehicleTileLabelSelected: {
+    color: TEXT_DARK,
   },
 
   // Promo
   promoCard: {
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: WHITE,
     borderRadius: 14,
     padding: 12,
   },
@@ -1239,23 +1242,23 @@ const styles = StyleSheet.create({
   },
   promoInput: {
     flex: 1,
-    fontSize: 13,
-    color: INK,
+    fontSize: 12,
+    color: TEXT_DARK,
     padding: 0,
   },
   promoApplyButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
     borderRadius: 8,
-    backgroundColor: '#EEF2F7',
+    backgroundColor: TINT_MINT,
   },
   promoApplyText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
-    color: BLUE,
+    color: DEEP_GREEN,
   },
   promoError: {
-    fontSize: 11,
+    fontSize: 10,
     color: RED,
     marginTop: 6,
   },
@@ -1266,9 +1269,72 @@ const styles = StyleSheet.create({
   },
   promoAppliedText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     color: GREEN,
+  },
+
+  // Estimated fare card + Pay with (in the scroll body)
+  fareCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+    marginTop: 16,
+    backgroundColor: WHITE,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  fareTextArea: {
+    flex: 1,
+  },
+  fareLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: TEXT_DARK,
+  },
+  fareMeta: {
+    fontSize: 11,
+    color: TEXT_MUTED,
+    marginTop: 3,
+  },
+  fareValueWrap: {
+    alignItems: 'flex-end',
+  },
+  fareStrike: {
+    fontSize: 11,
+    color: TEXT_MUTED,
+    textDecorationLine: 'line-through',
+  },
+  fareValue: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: TEXT_DARK,
+  },
+  fieldLabel: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: TEXT_MUTED,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  payWithRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginHorizontal: 20,
+    backgroundColor: WHITE,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  payWithText: {
+    flex: 1,
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: TEXT_DARK,
   },
 
   // Footer
@@ -1278,13 +1344,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: CREAM,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: BORDER,
+  },
+  footerSingle: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: CREAM,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: BORDER,
   },
   footerFareLabel: {
     fontSize: 11,
-    color: GRAY,
+    color: TEXT_MUTED,
     fontWeight: '600',
   },
   footerFareRow: {
@@ -1294,32 +1367,31 @@ const styles = StyleSheet.create({
   },
   footerFareStrike: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: TEXT_MUTED,
     textDecorationLine: 'line-through',
   },
   footerFareValue: {
     fontSize: 22,
     fontWeight: '800',
-    color: INK,
+    color: TEXT_DARK,
   },
   bookButton: {
-    backgroundColor: BLUE,
+    width: '100%',
+    backgroundColor: DEEP_GREEN,
     borderRadius: 16,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    minWidth: 140,
+    paddingVertical: 16,
     alignItems: 'center',
   },
   bookButtonDisabled: {
-    backgroundColor: '#C7CDD6',
+    backgroundColor: DISABLED_BG,
   },
   bookButtonText: {
-    color: '#FFFFFF',
+    color: CREAM,
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 15,
   },
   cancelRideButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: WHITE,
     borderWidth: 1.5,
     borderColor: RED,
     borderRadius: 16,
@@ -1336,23 +1408,18 @@ const styles = StyleSheet.create({
 
   // Live captain tracking card
   trackingCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
+    backgroundColor: WHITE,
+    marginHorizontal: 20,
     marginTop: 16,
     borderRadius: 18,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
   },
   trackingEtaBadge: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#EAF2FF',
+    backgroundColor: TINT_MINT,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -1361,7 +1428,7 @@ const styles = StyleSheet.create({
   trackingEtaText: {
     fontSize: 13,
     fontWeight: '800',
-    color: BLUE,
+    color: ICON_MINT,
   },
   captainRow: {
     flexDirection: 'row',
@@ -1372,7 +1439,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#EAF2FF',
+    backgroundColor: TINT_MINT,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1382,11 +1449,11 @@ const styles = StyleSheet.create({
   captainName: {
     fontSize: 14,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
   },
   captainMeta: {
     fontSize: 11,
-    color: GRAY,
+    color: TEXT_MUTED,
     marginTop: 2,
   },
   captainRatingRow: {
@@ -1398,13 +1465,13 @@ const styles = StyleSheet.create({
   captainRatingText: {
     fontSize: 11,
     fontWeight: '600',
-    color: INK,
+    color: TEXT_DARK,
   },
   captainActionButton: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: TINT_MINT,
     alignItems: 'center',
     justifyContent: 'center',
   },

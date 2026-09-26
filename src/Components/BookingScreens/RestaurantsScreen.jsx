@@ -20,6 +20,7 @@ import PinIcon from 'react-native-vector-icons/FontAwesome5';
 
 import BookingCalendar, {dateKeyToUTC, getTodayKey} from '../Booking/BookingCalendar';
 import {RAZORPAY_KEY_ID, IS_RAZORPAY_KEY_CONFIGURED} from '../../Config/razorpay';
+import {requireMembership} from '../Common/MembersOnly';
 
 const BLUE = '#0057FF';
 const AMBER = '#F59E0B';
@@ -186,6 +187,7 @@ const HotelsScreen = ({navigation, route}) => {
   const visibleAmenities = showAllAmenities ? hotel.amenities : hotel.amenities.slice(0, 4);
 
   const handleBookNow = useCallback(() => {
+    if (!requireMembership(navigation)) return;
     if (!IS_RAZORPAY_KEY_CONFIGURED) {
       Alert.alert(
         'Payments not configured',

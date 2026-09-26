@@ -12,11 +12,18 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import TaxiIcon from 'react-native-vector-icons/MaterialIcons';
 
-const INK = '#0F172A';
-const GRAY = '#64748B';
-const BLUE = '#2563EB';
-const BORDER = '#E5E7EB';
-const BG = '#F8FAFC';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
+const WHITE = '#FFFFFF';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const BORDER = '#E4DFD2';
+const TINT_MINT = '#E1EEE8';
+const ICON_MINT = '#1F6F5C';
+const TINT_PEACH = '#FBEAE0';
+const ICON_PEACH = '#C2703D';
+const AMBER = '#D97706';
+const RED = '#C0392B';
 
 const TABS = [
   {key: 'upcoming', label: 'Upcoming'},
@@ -25,9 +32,9 @@ const TABS = [
 ];
 
 const TYPE_STYLE = {
-  hotel: {icon: 'business', tint: '#FCEAF3', color: '#EC4899', lib: 'ion'},
-  taxi: {icon: 'local-taxi', tint: '#E9FBEF', color: '#16A34A', lib: 'material'},
-  homestay: {icon: 'home', tint: '#E9FBEF', color: '#16A34A', lib: 'ion'},
+  hotel: {icon: 'business', tint: TINT_PEACH, color: ICON_PEACH, lib: 'ion'},
+  taxi: {icon: 'local-taxi', tint: TINT_MINT, color: ICON_MINT, lib: 'material'},
+  homestay: {icon: 'home', tint: TINT_MINT, color: ICON_MINT, lib: 'ion'},
 };
 
 const BOOKINGS = [
@@ -39,8 +46,8 @@ const BOOKINGS = [
     dateLabel: 'Aug 10–12 · 2 nights',
     price: 6400,
     statusLabel: 'Confirmed',
-    statusColor: BLUE,
-    statusBg: '#EAF2FF',
+    statusColor: ICON_MINT,
+    statusBg: TINT_MINT,
   },
   {
     id: 'sedan-mg-road',
@@ -50,8 +57,8 @@ const BOOKINGS = [
     dateLabel: 'Aug 9 · 6:00 AM',
     price: 428,
     statusLabel: 'Confirmed',
-    statusColor: BLUE,
-    statusBg: '#EAF2FF',
+    statusColor: ICON_MINT,
+    statusBg: TINT_MINT,
   },
   ...Array.from({length: 11}, (_, index) => ({
     id: `mini-koramangala-${index + 1}`,
@@ -61,8 +68,8 @@ const BOOKINGS = [
     dateLabel: 'Jul 28 · 9:42 AM',
     price: 146,
     statusLabel: 'Completed',
-    statusColor: '#16A34A',
-    statusBg: '#E9FBEF',
+    statusColor: ICON_MINT,
+    statusBg: TINT_MINT,
   })),
   {
     id: 'coorg-cottage',
@@ -72,8 +79,8 @@ const BOOKINGS = [
     dateLabel: 'Jul 20–22 · 2 nights',
     price: 3600,
     statusLabel: 'Completed',
-    statusColor: '#16A34A',
-    statusBg: '#E9FBEF',
+    statusColor: ICON_MINT,
+    statusBg: TINT_MINT,
   },
   {
     id: 'misty-hills',
@@ -83,8 +90,8 @@ const BOOKINGS = [
     dateLabel: 'Jul 15 · Cancelled',
     price: 3200,
     statusLabel: 'Refunded',
-    statusColor: '#DB2777',
-    statusBg: '#FCEAF3',
+    statusColor: RED,
+    statusBg: TINT_PEACH,
   },
 ];
 
@@ -94,17 +101,17 @@ const CHECKIN_TYPES = new Set(['hotel', 'homestay']);
 
 const ACTIONS_BY_STATUS = {
   upcoming: [
-    {key: 'details', label: 'View Details', color: BLUE},
-    {key: 'invoice', label: 'Invoice', icon: 'document-text-outline', color: GRAY},
+    {key: 'details', label: 'View Details', color: DEEP_GREEN},
+    {key: 'invoice', label: 'Invoice', icon: 'document-text-outline', color: TEXT_MUTED},
   ],
   completed: [
-    {key: 'details', label: 'View Details', color: BLUE},
-    {key: 'rate', label: 'Rate', icon: 'star-outline', color: '#D97706'},
-    {key: 'download', label: 'Download', icon: 'download-outline', color: BLUE},
+    {key: 'details', label: 'View Details', color: DEEP_GREEN},
+    {key: 'rate', label: 'Rate', icon: 'star-outline', color: AMBER},
+    {key: 'download', label: 'Download', icon: 'download-outline', color: DEEP_GREEN},
   ],
   cancelled: [
-    {key: 'details', label: 'View Details', color: BLUE},
-    {key: 'rebook', label: 'Rebook', icon: 'refresh-outline', color: BLUE},
+    {key: 'details', label: 'View Details', color: DEEP_GREEN},
+    {key: 'rebook', label: 'Rebook', icon: 'refresh-outline', color: DEEP_GREEN},
   ],
 };
 
@@ -119,7 +126,7 @@ const BookingScreen = ({navigation}) => {
     const actions = ACTIONS_BY_STATUS[item.status];
     if (item.status === 'upcoming' && CHECKIN_TYPES.has(item.type)) {
       return [
-        {key: 'checkin', label: 'Check-in', icon: 'qr-code-outline', color: BLUE},
+        {key: 'checkin', label: 'Check-in', icon: 'qr-code-outline', color: DEEP_GREEN},
         ...actions,
       ];
     }
@@ -141,7 +148,7 @@ const BookingScreen = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle('dark-content');
-      StatusBar.setBackgroundColor('#FFFFFF');
+      StatusBar.setBackgroundColor(CREAM);
       return () => {};
     }, []),
   );
@@ -153,9 +160,9 @@ const BookingScreen = ({navigation}) => {
     return (
       <View style={[styles.typeIconWrap, {backgroundColor: typeStyle.tint}]}>
         {typeStyle.lib === 'material' ? (
-          <TaxiIcon name={typeStyle.icon} size={22} color={typeStyle.color} />
+          <TaxiIcon name={typeStyle.icon} size={19} color={typeStyle.color} />
         ) : (
-          <Icon name={typeStyle.icon} size={22} color={typeStyle.color} />
+          <Icon name={typeStyle.icon} size={19} color={typeStyle.color} />
         )}
       </View>
     );
@@ -201,7 +208,7 @@ const BookingScreen = ({navigation}) => {
                   }
                 }}>
                 {action.icon ? (
-                  <Icon name={action.icon} size={14} color={action.color} />
+                  <Icon name={action.icon} size={13} color={action.color} />
                 ) : null}
                 <Text style={[styles.footerActionText, {color: action.color}]}>
                   {action.label}
@@ -217,19 +224,21 @@ const BookingScreen = ({navigation}) => {
 
   return (
     <View style={styles.screen}>
+      <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
+
       <View style={[styles.header, {paddingTop: insets.top + 8}]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={styles.headerButton}
           activeOpacity={0.7}
           onPress={() => navigation?.goBack?.()}>
-          <Icon name="chevron-back" size={22} color={INK} />
+          <Icon name="chevron-back" size={17} color={TEXT_DARK} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Bookings</Text>
         <TouchableOpacity
-          style={styles.backButton}
+          style={styles.headerButton}
           activeOpacity={0.7}
           onPress={() => navigation?.navigate?.('CheckInScan')}>
-          <Icon name="qr-code-outline" size={22} color={BLUE} />
+          <Icon name="qr-code-outline" size={18} color={DEEP_GREEN} />
         </TouchableOpacity>
       </View>
 
@@ -267,7 +276,7 @@ const BookingScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: CREAM,
   },
 
   // Header
@@ -275,91 +284,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
-  backButton: {
+  headerButton: {
     width: 36,
     height: 36,
+    borderRadius: 18,
+    backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#faf9f9',
-    borderRadius:30
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: "INK",
+    fontSize: 16,
+    fontWeight: '800',
+    color: TEXT_DARK,
   },
 
   // Tabs — segmented pill control
   tabsTrack: {
     flexDirection: 'row',
     marginHorizontal: 20,
-    marginTop: 4,
     marginBottom: 12,
     padding: 4,
-    backgroundColor: '#EEF1F5',
+    backgroundColor: TINT_MINT,
     borderRadius: 14,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 9,
-    borderRadius: 16,
+    paddingVertical: 8,
+    borderRadius: 11,
   },
   tabItemActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: WHITE,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '600',
-    color: GRAY,
+    color: TEXT_MUTED,
   },
   tabLabelActive: {
-    color: BLUE,
+    color: DEEP_GREEN,
   },
 
   // List
   listContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 4,
     paddingBottom: 24,
-    gap: 14,
+    gap: 12,
   },
   emptyText: {
     marginTop: 60,
     textAlign: 'center',
     fontSize: 13,
-    color: GRAY,
+    color: TEXT_MUTED,
   },
 
   // Card
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    backgroundColor: WHITE,
+    borderRadius: 16,
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
   },
   cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 11,
   },
   typeIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 40,
+    height: 40,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
@@ -368,22 +365,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardName: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
   },
   cardDate: {
-    fontSize: 12,
-    color: GRAY,
+    fontSize: 11.5,
+    color: TEXT_MUTED,
     marginTop: 3,
   },
   cardPriceCol: {
     alignItems: 'flex-end',
   },
   cardPrice: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
   },
   statusPill: {
     marginTop: 6,
@@ -392,7 +389,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   statusPillText: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '700',
   },
 
@@ -418,7 +415,7 @@ const styles = StyleSheet.create({
     borderLeftColor: BORDER,
   },
   footerActionText: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '600',
   },
 });

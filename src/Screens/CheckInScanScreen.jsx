@@ -20,16 +20,17 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 
-const BLUE = '#0057FF';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
 const WHITE = '#FFFFFF';
 const FRAME_SIZE = 250;
 const CORNER_SIZE = 32;
 
-const INK = '#0F172A';
-const GRAY = '#64748B';
-const BORDER = '#E5E7EB';
-const SUCCESS_BG = '#F8FAFC';
-const GREEN = '#16A34A';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const BORDER = '#E4DFD2';
+const TINT_MINT = '#E1EEE8';
+const ICON_MINT = '#1F6F5C';
 
 function ordinalSuffix(n) {
   if (n % 10 === 1 && n % 100 !== 11) return 'st';
@@ -62,7 +63,7 @@ function DetailRow({icon, label, value}) {
   return (
     <View style={styles.detailRow}>
       <View style={styles.detailIconWrap}>
-        <Icon name={icon} size={16} color={BLUE} />
+        <Icon name={icon} size={16} color={DEEP_GREEN} />
       </View>
       <Text style={styles.detailLabel}>{label}</Text>
       <Text style={styles.detailValue} numberOfLines={1}>
@@ -136,13 +137,13 @@ const CheckInScanScreen = ({navigation, route}) => {
   if (checkInResult) {
     return (
       <View style={styles.successScreen}>
-        <StatusBar barStyle="dark-content" backgroundColor={SUCCESS_BG} />
+        <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
         <SafeAreaView style={styles.successSafeArea} edges={['top', 'bottom']}>
           <ScrollView
             contentContainerStyle={styles.successScroll}
             showsVerticalScrollIndicator={false}>
             <View style={styles.successBadge}>
-              <Icon name="checkmark" size={44} color={WHITE} />
+              <Icon name="checkmark" size={44} color={ICON_MINT} />
             </View>
 
             <Text style={styles.successTitle}>Checked In Successfully</Text>
@@ -247,7 +248,7 @@ const CheckInScanScreen = ({navigation, route}) => {
           <View style={styles.frameWrap}>
             {booking?.name ? (
               <View style={styles.bookingChip}>
-                <Icon name="bed-outline" size={13} color={BLUE} />
+                <Icon name="bed-outline" size={13} color={DEEP_GREEN} />
                 <Text style={styles.bookingLabel} numberOfLines={1}>
                   {booking.name}
                 </Text>
@@ -375,8 +376,8 @@ const styles = StyleSheet.create({
     right: 12,
     height: 2,
     borderRadius: 1,
-    backgroundColor: BLUE,
-    shadowColor: BLUE,
+    backgroundColor: DEEP_GREEN,
+    shadowColor: DEEP_GREEN,
     shadowOpacity: 0.9,
     shadowRadius: 6,
     shadowOffset: {width: 0, height: 0},
@@ -437,7 +438,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 12,
     fontWeight: '700',
-    color: BLUE,
+    color: DEEP_GREEN,
     flexShrink: 1,
   },
 
@@ -453,7 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,87,255,0.25)',
+    backgroundColor: 'rgba(31,111,92,0.35)',
   },
   permissionTitle: {
     marginTop: 18,
@@ -470,7 +471,7 @@ const styles = StyleSheet.create({
   },
   permissionButton: {
     marginTop: 20,
-    backgroundColor: BLUE,
+    backgroundColor: DEEP_GREEN,
     borderRadius: 14,
     paddingHorizontal: 24,
     paddingVertical: 12,
@@ -483,7 +484,7 @@ const styles = StyleSheet.create({
 
   successScreen: {
     flex: 1,
-    backgroundColor: SUCCESS_BG,
+    backgroundColor: CREAM,
   },
   successSafeArea: {
     flex: 1,
@@ -499,26 +500,21 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
-    backgroundColor: GREEN,
+    backgroundColor: TINT_MINT,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: GREEN,
-    shadowOffset: {width: 0, height: 8},
-    shadowOpacity: 0.3,
-    shadowRadius: 14,
-    elevation: 6,
   },
   successTitle: {
     marginTop: 20,
     fontSize: 20,
     fontWeight: '800',
-    color: INK,
+    color: TEXT_DARK,
     textAlign: 'center',
   },
   successSubtitle: {
     marginTop: 6,
     fontSize: 14,
-    color: GRAY,
+    color: TEXT_MUTED,
     textAlign: 'center',
   },
   detailsCard: {
@@ -532,7 +528,7 @@ const styles = StyleSheet.create({
   },
   roomBadgeRow: {
     flexDirection: 'row',
-    backgroundColor: '#EAF2FF',
+    backgroundColor: TINT_MINT,
     paddingVertical: 18,
   },
   roomNumberBox: {
@@ -542,13 +538,13 @@ const styles = StyleSheet.create({
   roomNumberValue: {
     fontSize: 22,
     fontWeight: '800',
-    color: BLUE,
+    color: DEEP_GREEN,
   },
   roomNumberLabel: {
     marginTop: 4,
     fontSize: 12,
     fontWeight: '600',
-    color: GRAY,
+    color: TEXT_MUTED,
   },
   roomBadgeDivider: {
     width: 1,
@@ -571,37 +567,32 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EAF2FF',
+    backgroundColor: TINT_MINT,
   },
   detailLabel: {
     flex: 1,
     marginLeft: 10,
     fontSize: 13,
-    color: GRAY,
+    color: TEXT_MUTED,
   },
   detailValue: {
     fontSize: 13,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
     maxWidth: '50%',
   },
   doneButton: {
     width: '100%',
     marginTop: 28,
-    backgroundColor: BLUE,
+    backgroundColor: DEEP_GREEN,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: BLUE,
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
   },
   doneButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: WHITE,
+    color: CREAM,
   },
 });
 
