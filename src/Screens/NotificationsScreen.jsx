@@ -11,10 +11,15 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const INK = '#0F172A';
-const GRAY = '#64748B';
-const BLUE = '#2F6FED';
-const BG = '#F8FAFC';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
+const WHITE = '#FFFFFF';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const TINT_MINT = '#E1EEE8';
+const ICON_MINT = '#1F6F5C';
+const TINT_PEACH = '#FBEAE0';
+const ICON_PEACH = '#C2703D';
 
 const NOTIFICATIONS = [
   {
@@ -22,10 +27,9 @@ const NOTIFICATIONS = [
     title: 'Booking Confirmed',
     description: 'Your hotel stay at The Nilgiri Retreat (Aug 10–12) is confirmed.',
     time: '2 min ago',
-    accent: '#16A34A',
-    iconBg: '#DCFCE7',
+    iconBg: TINT_MINT,
     icon: 'checkmark',
-    iconColor: '#16A34A',
+    iconColor: ICON_MINT,
     unread: true,
   },
   {
@@ -33,10 +37,9 @@ const NOTIFICATIONS = [
     title: 'Driver Assigned',
     description: 'Suresh Kumar (⭐ 4.9) will pick you up at 6:00 AM. KA 05 MG 4821',
     time: '15 min ago',
-    accent: '#2563EB',
-    iconBg: '#DBEAFE',
+    iconBg: TINT_MINT,
     icon: 'car',
-    iconColor: '#2563EB',
+    iconColor: ICON_MINT,
     unread: true,
   },
   {
@@ -44,9 +47,9 @@ const NOTIFICATIONS = [
     title: 'Payment Successful',
     description: 'Payment of ₹3,200 processed via UPI for The Nilgiri Retreat.',
     time: '1 hr ago',
-    iconBg: '#DBEAFE',
+    iconBg: TINT_MINT,
     icon: 'card',
-    iconColor: '#2563EB',
+    iconColor: ICON_MINT,
     unread: false,
   },
   {
@@ -54,16 +57,16 @@ const NOTIFICATIONS = [
     title: 'Referral Reward!',
     description: 'Mohan Kumar completed 10 trips. You earned ₹200 referral bonus!',
     time: '3 hr ago',
-    iconBg: '#FFEDD5',
+    iconBg: TINT_PEACH,
     emoji: '🎁',
     unread: false,
   },
   {
     id: 'n5',
     title: 'Membership Renewal',
-    description: 'Your driver membership expires in 30 days. Renew for ₹100.',
+    description: 'Your AMC membership expires in 30 days. Renew for ₹118.',
     time: '1 day ago',
-    iconBg: '#EDE9FE',
+    iconBg: TINT_PEACH,
     emoji: '🔔',
     unread: false,
   },
@@ -72,7 +75,7 @@ const NOTIFICATIONS = [
     title: 'Special Offer',
     description: 'Weekend deal: 15% OFF on homestays. Book now before it expires!',
     time: '2 days ago',
-    iconBg: '#FEF9C3',
+    iconBg: TINT_PEACH,
     emoji: '🏷️',
     unread: false,
   },
@@ -85,7 +88,7 @@ const NotificationsScreen = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle('dark-content');
-      StatusBar.setBackgroundColor('#FFFFFF');
+      StatusBar.setBackgroundColor(CREAM);
       return () => {};
     }, []),
   );
@@ -96,14 +99,14 @@ const NotificationsScreen = ({navigation}) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
 
       <View style={[styles.header, {paddingTop: insets.top + 8}]}>
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.7}
           onPress={() => navigation?.goBack?.()}>
-          <Icon name="chevron-back" size={22} color={INK} />
+          <Icon name="chevron-back" size={17} color={TEXT_DARK} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         <TouchableOpacity activeOpacity={0.7} onPress={handleMarkAllRead}>
@@ -115,32 +118,22 @@ const NotificationsScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, {paddingBottom: insets.bottom + 24}]}>
         {items.map(item => (
-          <View key={item.id} style={styles.card}>
-            <View
-              style={[
-                styles.cardClip,
-                item.unread && {backgroundColor: item.accent},
-              ]}>
-              <View style={[styles.cardInner, item.unread && styles.cardInnerUnread]}>
-                <View style={[styles.iconWrap, {backgroundColor: item.iconBg}]}>
-                  {item.emoji ? (
-                    <Text style={styles.iconEmoji}>{item.emoji}</Text>
-                  ) : (
-                    <Icon name={item.icon} size={18} color={item.iconColor} />
-                  )}
-                </View>
+          <View key={item.id} style={[styles.card, item.unread && styles.cardUnread]}>
+            <View style={[styles.iconWrap, {backgroundColor: item.iconBg}]}>
+              {item.emoji ? (
+                <Text style={styles.iconEmoji}>{item.emoji}</Text>
+              ) : (
+                <Icon name={item.icon} size={17} color={item.iconColor} />
+              )}
+            </View>
 
-                <View style={styles.cardBody}>
-                  <View style={styles.cardTitleRow}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    {item.unread && (
-                      <View style={[styles.unreadDot, {backgroundColor: item.accent}]} />
-                    )}
-                  </View>
-                  <Text style={styles.cardDescription}>{item.description}</Text>
-                  <Text style={styles.cardTime}>{item.time}</Text>
-                </View>
+            <View style={styles.cardBody}>
+              <View style={styles.cardTitleRow}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                {item.unread && <View style={styles.unreadDot} />}
               </View>
+              <Text style={styles.cardDescription}>{item.description}</Text>
+              <Text style={styles.cardTime}>{item.time}</Text>
             </View>
           </View>
         ))}
@@ -152,73 +145,62 @@ const NotificationsScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: CREAM,
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
   backButton: {
     width: 36,
     height: 36,
+    borderRadius: 18,
+    backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: INK,
+    fontSize: 16,
+    fontWeight: '800',
+    color: TEXT_DARK,
   },
   markAllText: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '600',
-    color: BLUE,
-    paddingHorizontal: 8,
+    color: DEEP_GREEN,
   },
 
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingHorizontal: 20,
+    paddingTop: 4,
     paddingBottom: 24,
-    gap: 12,
+    gap: 10,
   },
 
   card: {
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  cardClip: {
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  cardInner: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    padding: 14,
-    gap: 12,
+    backgroundColor: WHITE,
+    borderRadius: 15,
+    padding: 12,
+    gap: 11,
   },
-  cardInnerUnread: {
-    marginLeft: 4,
+  cardUnread: {
+    backgroundColor: TINT_MINT,
   },
   iconWrap: {
-    width: 42,
-    height: 42,
+    width: 38,
+    height: 38,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   iconEmoji: {
-    fontSize: 19,
+    fontSize: 17,
   },
   cardBody: {
     flex: 1,
@@ -230,26 +212,27 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cardTitle: {
-    fontSize: 14.5,
+    fontSize: 13.5,
     fontWeight: '700',
-    color: INK,
+    color: TEXT_DARK,
     flexShrink: 1,
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: DEEP_GREEN,
   },
   cardDescription: {
-    fontSize: 12.5,
-    color: GRAY,
-    lineHeight: 18,
-    marginTop: 4,
+    fontSize: 11.5,
+    color: TEXT_MUTED,
+    lineHeight: 17,
+    marginTop: 3,
   },
   cardTime: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 6,
+    fontSize: 10.5,
+    color: TEXT_MUTED,
+    marginTop: 5,
   },
 });
 

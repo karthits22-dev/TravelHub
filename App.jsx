@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
 import { StyleSheet, StatusBar } from 'react-native';
 
@@ -24,6 +24,7 @@ import SplashScreen from './src/Screens/SplashScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import OtpScreen from './src/Screens/OtpAuthScreen';
 import HomeScreen from './src/Screens/HomeScreen';
+import MembershipScreen from './src/Screens/MembershipScreen';
 import BookingScreen from './src/Screens/BookingScreen';
 import CheckInScanScreen from './src/Screens/CheckInScanScreen';
 import WalletScreen from './src/Screens/WalletScreen';
@@ -36,13 +37,35 @@ import Taxiscreen from './src/Components/HomeScreens/TaxiScreen';
 import DriveWithUs from './src/Components/HomeScreens/DriveWithUs';
 import HomeStaysScreen from './src/Components/BookingScreens/HomeStaysScreen';
 import HotelsScreen from './src/Components/BookingScreens/HotelsScreen';
+import ConfirmPayScreen from './src/Components/BookingScreens/ConfirmPayScreen';
+import BookingConfirmedScreen from './src/Components/BookingScreens/BookingConfirmedScreen';
 import ResortScreen from './src/Components/BookingScreens/ResortScreen';
 import RestaurantsScreen from './src/Components/BookingScreens/RestaurantsScreen';
 import CoffeCorner from './src/Components/BookingScreens/CoffeCorner';
 import TpPassScreen from './src/Components/HomeScreens/TpPassScreen';
-import InsuranceScreen from './src/Components/HomeScreens/InsuranceScreen';
+import RenewalsScreen from './src/Components/HomeScreens/RenewalsScreen';
+import RenewalFormScreen from './src/Components/HomeScreens/RenewalFormScreen';
 import AllHotels from './src/Components/HomeScreens/AllHotelsCategories';
 import NotificationsScreen from './src/Screens/NotificationsScreen';
+import RegisterMemberScreen from './src/Components/Membership/RegisterMemberScreen';
+import MemberRegistrationsScreen from './src/Components/Membership/MemberRegistrationsScreen';
+import WithdrawEarningsScreen from './src/Components/Membership/WithdrawEarningsScreen';
+import WithdrawalRequestedScreen from './src/Components/Membership/WithdrawalRequestedScreen';
+import ActivateMembershipScreen from './src/Components/Membership/ActivateMembershipScreen';
+import {withMembersOnly} from './src/Components/Common/MembersOnly';
+import {loadMembership} from './src/Services/MembershipService';
+import {loadAuthSession, useAuthSession} from './src/Services/AuthSession';
+
+// Everything is open to browse without a membership — only *starting* an
+// action needs one. The action screens below are gated here: opening one
+// as a non-member sends the user to ActivateMembership, and after paying
+// they continue into it. Actions that happen inside a screen (Book now on
+// Resorts/Restaurants/Home Stays/Coffee Corner, Book ride on Taxi) are
+// guarded with requireMembership() at the button instead.
+// Wrapped at module level so component types stay stable.
+const MembersConfirmPay = withMembersOnly(ConfirmPayScreen);
+const MembersRenewalForm = withMembersOnly(RenewalFormScreen);
+const MembersMembership = withMembersOnly(MembershipScreen);
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -85,8 +108,8 @@ const MainTabs = () => {
         // whichever tab you'd just left, which is what made switching feel
         // laggy.
         freezeOnBlur: true,
-        tabBarActiveTintColor: '#0057FF',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: '#0F3D34',
+        tabBarInactiveTintColor: '#A4A79E',
         tabBarShowLabel: false,
         tabBarStyle: [
           styles.bottomBar,
@@ -113,6 +136,40 @@ const MainTabs = () => {
 };
 
 const App = () => {
+ const URL = "https://travelhubbackend-2.onrender.com/";
+
+setInterval(async () => {
+  try {
+    const response = await fetch(URL);
+
+    console.log(
+      new Date().toLocaleTimeString(),
+      "→ Status:",
+      response.status
+    );
+  } catch (error) {
+    console.log("Request failed:", error.message);
+  }
+}, 5000);
+  // Read the stored membership status while Splash/Login are showing, so
+  // it's ready long before any members-only screen can be opened.
+  useEffect(() => {
+    loadMembership();
+  }, []);
+
+  // Read the stored login session before picking a starting screen — this
+  // is what lets a returning user skip Splash/Login/OTP entirely and land
+  // straight on MainTabs, and a logged-out user land back on Splash/Login.
+  const {loaded: authLoaded, isLoggedIn} = useAuthSession();
+  useEffect(() => {
+    loadAuthSession();
+  }, []);
+
+  // Don't mount the navigator until we know which screen to start on —
+  // initialRouteName is only read on first render, so picking it before
+  // the stored session is loaded would always start at Splash.
+  if (!authLoaded) return null;
+
   return (
     <SafeAreaProvider>
       {/* Sane baseline for every screen that doesn't set its own (Splash,
@@ -123,7 +180,7 @@ const App = () => {
       <NavigationContainer>
 
         <Stack.Navigator
-          initialRouteName="Splash"
+          initialRouteName={isLoggedIn ? 'MainTabs' : 'Splash'}
           screenOptions={{
             headerShown: false,
             animation: 'none',
@@ -145,13 +202,31 @@ const App = () => {
             options={{presentation: 'modal', animation: 'slide_from_bottom'}}
           />
           <Stack.Screen name="Hotels" component={HotelsScreen} />
+          <Stack.Screen name="ConfirmPay" component={MembersConfirmPay} />
+          <Stack.Screen
+            name="BookingConfirmed"
+            component={BookingConfirmedScreen}
+            // The booking is already paid for by the time this screen
+            // shows, so the iOS swipe-back gesture is disabled here too —
+            // BookingConfirmedScreen's own beforeRemove listener blocks the
+            // gesture regardless, but this stops the swipe preview from
+            // even starting.
+            options={{gestureEnabled: false}}
+          />
           <Stack.Screen name="HomeStays" component={HomeStaysScreen} />
           <Stack.Screen name="Resort" component={ResortScreen} />
           <Stack.Screen name="Restaurants" component={RestaurantsScreen} />
           <Stack.Screen name="CoffeCorner" component={CoffeCorner} />
-          <Stack.Screen name="Insurance" component={InsuranceScreen} />
+          <Stack.Screen name="Renewals" component={RenewalsScreen} />
+          <Stack.Screen name="RenewalForm" component={MembersRenewalForm} />
           <Stack.Screen name="AllHotels" component={AllHotels} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Membership" component={MembersMembership} />
+          <Stack.Screen name="ActivateMembership" component={ActivateMembershipScreen} />
+          <Stack.Screen name="RegisterMember" component={RegisterMemberScreen} />
+          <Stack.Screen name="MemberRegistrations" component={MemberRegistrationsScreen} />
+          <Stack.Screen name="WithdrawEarnings" component={WithdrawEarningsScreen} />
+          <Stack.Screen name="WithdrawalRequested" component={WithdrawalRequestedScreen} />
           <Stack.Screen
             name="CheckInScan"
             component={CheckInScanScreen}

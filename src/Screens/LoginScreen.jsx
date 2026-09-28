@@ -1,256 +1,260 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 // RN's built-in SafeAreaView is a no-op on Android; this one actually
 // measures real insets on both platforms (required now that Android 15+
 // enforces edge-to-edge for all screens, not just ones that opt in).
 import {SafeAreaView} from 'react-native-safe-area-context';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialIconGoogle from 'react-native-vector-icons/AntDesign';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {sendOtp} from '../Services/AuthService';
+import NumericKeypad from '../Components/Common/NumericKeypad';
 
+const PHONE_LENGTH = 10;
 
-const LoginScreen = ({ navigation }) => {
-  const [mobileNumber, setMobileNumber] = useState('1111111111');
+const LoginScreen = ({navigation}) => {
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [sending, setSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const canContinue = mobileNumber.trim().length >= 10;
+  const formattedNumber = mobileNumber.replace(/(\d{5})(\d+)/, '$1 $2');
+
+  const handleDigit = digit => {
+    if (mobileNumber.length >= PHONE_LENGTH) return;
+    setMobileNumber(mobileNumber + digit);
+    setErrorMessage(null);
+  };
+
+  // Long-press on the keypad's delete key passes clearAll.
+  const handleBackspace = clearAll => {
+    setMobileNumber(clearAll === true ? '' : mobileNumber.slice(0, -1));
+    setErrorMessage(null);
+  };
+
+  const handleSendOtp = async () => {
+    if (!canContinue || sending) return;
+    setSending(true);
+    setErrorMessage(null);
+    try {
+     await sendOtp(mobileNumber.trim());
+      navigation.navigate('OtpAuth', {mobileNumber});
+    } catch (err) {
+      setErrorMessage(err.message);
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
-    <View style={styles.screen}>
-      {/* Header */}
-      <SafeAreaView style={styles.header}>
-        <View style={styles.circleAccent} />
-
+    // No 'bottom' edge: NumericKeypad handles the home-indicator inset
+    // itself so its background reaches the bottom of the screen.
+    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+      <View style={styles.content}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}>
-          <MaterialIcon name="arrow-back-ios-new" size={15} color="white" />
-
+          <Icon name="chevron-back" size={18} color={DEEP_GREEN} />
         </TouchableOpacity>
 
-        <View style={styles.headerText}>
-          <Text style={styles.title}>Welcome Back 👋</Text>
-          <Text style={styles.subtitle}>Sign in to continue your journey.</Text>
-        </View>
-      </SafeAreaView>
-
-      {/* Body */}
-      <View style={styles.body}>
-        <Text style={styles.label}>MOBILE NUMBER</Text>
-
-        <View style={styles.inputRow}>
-          <View style={styles.countryCode}>
-            <Text style={styles.countryCodeText}>IN +91</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter mobile number"
-            placeholderTextColor="#9CA3AF"
-            keyboardType="phone-pad"
-            maxLength={10}
-            value={mobileNumber}
-            onChangeText={setMobileNumber}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.continueButton, canContinue && styles.continueButtonActive]}
-          disabled={!canContinue}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('OtpAuth', { mobileNumber })}>
-          <Text
-            style={[
-              styles.continueButtonText,
-              canContinue && styles.continueButtonTextActive,
-            ]}>
-            Continue
+        <View style={styles.body}>
+          <Text style={styles.title}>Log in or sign up</Text>
+          <Text style={styles.subtitle}>
+            Enter your mobile number — we'll send a one-time code to verify it.
           </Text>
-        </TouchableOpacity>
 
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or continue with</Text>
-          <View style={styles.dividerLine} />
+          <Text style={styles.label}>Mobile number</Text>
+          <View style={styles.inputRow}>
+            <View style={styles.countryCode}>
+              <Text style={styles.countryCodeText}>+91</Text>
+            </View>
+            {/* Display-only: digits come from the NumericKeypad below. */}
+            <View style={styles.input}>
+              {mobileNumber ? (
+                <Text style={styles.inputText}>{formattedNumber}</Text>
+              ) : (
+                <Text style={[styles.inputText, styles.placeholderText]}>
+                  98450 12345
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+          <View style={styles.referralHint}>
+            <Icon name="person-outline" size={16} color={TEXT_MUTED} />
+            <Text style={styles.referralHintText}>
+              Have an AMC agent referral code? You can add it after verifying
+              your number.
+            </Text>
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.socialButton}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('GoogleAuth')}>
-          <MaterialIconGoogle name="google" size={15} color="#2093DA" />
+        <View style={styles.spacer} />
 
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.socialButton}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('AppleAuth')}>
-          <MaterialIcon name="apple" size={20} color="#666666" />
-
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
-        </TouchableOpacity>
+        <View style={styles.bottomArea}>
+          <TouchableOpacity
+            style={[styles.sendButton, canContinue && styles.sendButtonActive]}
+            disabled={!canContinue || sending}
+            activeOpacity={0.85}
+            onPress={handleSendOtp}>
+            {sending ? (
+              <ActivityIndicator size="small" color={CREAM} />
+            ) : (
+              <Text
+                style={[
+                  styles.sendButtonText,
+                  canContinue && styles.sendButtonTextActive,
+                ]}>
+                Send OTP
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+      <NumericKeypad
+        onDigit={handleDigit}
+        onBackspace={handleBackspace}
+        disabled={sending}
+      />
+    </SafeAreaView>
   );
 };
 
-const BLUE = '#0057FF';
-const INK = '#111827';
-const GRAY = '#6B7280';
-const LIGHT_GRAY = '#9CA3AF';
-const BORDER = '#E5E7EB';
-const FIELD_BG = '#F3F4F6';
+const DEEP_GREEN = '#0F3D34';
+const CREAM = '#F5F0E4';
+const WHITE = '#FFFFFF';
+const TEXT_DARK = '#1B2E2A';
+const TEXT_MUTED = '#6E7D77';
+const LIGHT_TEXT = '#9CA6A1';
+const BORDER = '#E4DFD2';
+const DISABLED_BG = '#DAD4C4';
+const ERROR_RED = '#C23E3E';
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: CREAM,
   },
-  header: {
-    backgroundColor: BLUE,
+  content: {
+    flex: 1,
     paddingHorizontal: 20,
-    paddingBottom: 28,
-    overflow: 'hidden',
-  },
-  circleAccent: {
-    position: 'absolute',
-    top: -40,
-    right: -30,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    marginBottom: 20,
-  },
-  backArrow: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '600',
-    marginTop: -2,
-  },
-  headerText: {
-    gap: 4,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 14,
   },
   body: {
+    marginTop: 24,
+  },
+  spacer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 24,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: TEXT_DARK,
+  },
+  subtitle: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    color: TEXT_MUTED,
   },
   label: {
-    fontSize: 12,
+    marginTop: 28,
+    marginBottom: 8,
+    fontSize: 13,
     fontWeight: '600',
-    color: GRAY,
-    letterSpacing: 0.5,
-    marginBottom: 10,
+    color: TEXT_MUTED,
   },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: FIELD_BG,
+    gap: 10,
+  },
+  countryCode: {
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    backgroundColor: WHITE,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: BORDER,
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  countryCode: {
-    paddingHorizontal: 14,
-    paddingVertical: 16,
-    borderRightWidth: 1,
-    borderRightColor: BORDER,
   },
   countryCodeText: {
     fontSize: 15,
-    fontWeight: '600',
-    color: INK,
+    fontWeight: '700',
+    color: TEXT_DARK,
   },
   input: {
     flex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    fontSize: 15,
-    color: INK,
-  },
-  continueButton: {
-    width: '100%',
-    backgroundColor: FIELD_BG,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  continueButtonActive: {
-    backgroundColor: BLUE,
-  },
-  continueButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: LIGHT_GRAY,
-  },
-  continueButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: BORDER,
-  },
-  dividerText: {
-    fontSize: 12,
-    color: GRAY,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: WHITE,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: DEEP_GREEN,
+  },
+  inputText: {
+    fontSize: 15,
+    color: TEXT_DARK,
+  },
+  placeholderText: {
+    color: LIGHT_TEXT,
+  },
+  errorText: {
+    marginTop: 10,
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: ERROR_RED,
+  },
+  referralHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
+    marginTop: 14,
+    padding: 14,
+    backgroundColor: WHITE,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: 14,
-    paddingVertical: 15,
-    marginBottom: 12,
   },
-  socialIcon: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  referralHintText: {
+    flex: 1,
+    fontSize: 12.5,
+    lineHeight: 18,
+    color: TEXT_MUTED,
   },
-  appleIcon: {
-    fontSize: 18,
-    color: INK,
+  bottomArea: {
+    paddingBottom: 16,
   },
-  socialButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: INK,
+  sendButton: {
+    width: '100%',
+    paddingVertical: 18,
+    borderRadius: 18,
+    alignItems: 'center',
+    backgroundColor: DISABLED_BG,
+  },
+  sendButtonActive: {
+    backgroundColor: DEEP_GREEN,
+  },
+  sendButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: TEXT_MUTED,
+  },
+  sendButtonTextActive: {
+    color: CREAM,
   },
 });
 

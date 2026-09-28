@@ -94,7 +94,16 @@ const buildMonthCells = (year, month, todayKey) => {
 // (homestays, hotel rooms, …): callers own `selectedRange` and get it back
 // via `onChangeRange`, so fare/nights math stays with the screen that knows
 // the price.
-const BookingCalendar = ({selectedRange, onChangeRange}) => {
+const BookingCalendar = ({
+  selectedRange,
+  onChangeRange,
+  // Callers can override these to match their own theme (e.g. the Hotels &
+  // Stays flow's green/cream palette) without touching this component's
+  // other, still-blue-themed callers.
+  accentColor = BLUE,
+  accentTint = '#EEF2FF',
+  rangeTrackColor = '#bfcfee',
+}) => {
   const [monthIndex, setMonthIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(DEFAULT_CARD_WIDTH);
   const monthListRef = useRef(null);
@@ -177,6 +186,7 @@ const BookingCalendar = ({selectedRange, onChangeRange}) => {
                   <View
                     style={[
                       styles.rangeTrack,
+                      {backgroundColor: rangeTrackColor},
                       isStart && styles.rangeTrackStart,
                       isEnd && styles.rangeTrackEnd,
                       isInRange && styles.rangeTrackMiddle,
@@ -187,7 +197,9 @@ const BookingCalendar = ({selectedRange, onChangeRange}) => {
                   style={[
                     styles.dayButton,
                     cell.isToday && !isEdge && styles.dayButtonToday,
+                    cell.isToday && !isEdge && {borderColor: accentColor},
                     isEdge && styles.dayButtonSelected,
+                    isEdge && {backgroundColor: accentColor},
                   ]}
                   activeOpacity={0.7}
                   disabled={cell.disabled}
@@ -207,7 +219,7 @@ const BookingCalendar = ({selectedRange, onChangeRange}) => {
         </View>
       );
     },
-    [todayKey, selectedRange, handleDayPress, pageWidth, pageHeight],
+    [todayKey, selectedRange, handleDayPress, pageWidth, pageHeight, accentColor, rangeTrackColor],
   );
 
   const nights = selectedRange.end
@@ -224,22 +236,22 @@ const BookingCalendar = ({selectedRange, onChangeRange}) => {
         <Text style={styles.sectionTitle}>Check Availability</Text>
         <View style={styles.monthNavRow}>
           <TouchableOpacity
-            style={styles.monthNavButton}
+            style={[styles.monthNavButton, {backgroundColor: accentTint}]}
             activeOpacity={0.7}
             disabled={monthIndex === 0}
             onPress={() => goToMonth(-1)}>
-            <Icon name="chevron-back" size={16} color={monthIndex === 0 ? '#CBD5E1' : BLUE} />
+            <Icon name="chevron-back" size={16} color={monthIndex === 0 ? '#CBD5E1' : accentColor} />
           </TouchableOpacity>
           <Text style={styles.monthLabel}>{monthLabel}</Text>
           <TouchableOpacity
-            style={styles.monthNavButton}
+            style={[styles.monthNavButton, {backgroundColor: accentTint}]}
             activeOpacity={0.7}
             disabled={monthIndex === monthsWindow.length - 1}
             onPress={() => goToMonth(1)}>
             <Icon
               name="chevron-forward"
               size={16}
-              color={monthIndex === monthsWindow.length - 1 ? '#CBD5E1' : BLUE}
+              color={monthIndex === monthsWindow.length - 1 ? '#CBD5E1' : accentColor}
             />
           </TouchableOpacity>
         </View>
@@ -293,7 +305,7 @@ const BookingCalendar = ({selectedRange, onChangeRange}) => {
 
         <View style={styles.summaryDivider}>
           <Icon name="arrow-forward" size={14} color={GRAY} />
-          <Text style={styles.nightsText}>
+          <Text style={[styles.nightsText, {color: accentColor}]}>
             {nights} {nights === 1 ? 'night' : 'nights'}
           </Text>
         </View>
@@ -374,8 +386,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '10',
     bottom: '0',
-    backgroundColor: '#bfcfee',
-    
   },
   rangeTrackStart: {
     left: '50%',
@@ -398,11 +408,8 @@ const styles = StyleSheet.create({
   },
   dayButtonToday: {
     borderWidth: 1.5,
-    borderColor: BLUE,
   },
-  dayButtonSelected: {
-    backgroundColor: BLUE,
-  },
+  dayButtonSelected: {},
   dayButtonText: {
     fontSize: 13,
     fontWeight: '600',
