@@ -54,6 +54,7 @@ import WithdrawalRequestedScreen from './src/Components/Membership/WithdrawalReq
 import ActivateMembershipScreen from './src/Components/Membership/ActivateMembershipScreen';
 import {withMembersOnly} from './src/Components/Common/MembersOnly';
 import {loadMembership} from './src/Services/MembershipService';
+import {loadAuthSession, useAuthSession} from './src/Services/AuthSession';
 
 // Everything is open to browse without a membership — only *starting* an
 // action needs one. The action screens below are gated here: opening one
@@ -156,6 +157,19 @@ setInterval(async () => {
     loadMembership();
   }, []);
 
+  // Read the stored login session before picking a starting screen — this
+  // is what lets a returning user skip Splash/Login/OTP entirely and land
+  // straight on MainTabs, and a logged-out user land back on Splash/Login.
+  const {loaded: authLoaded, isLoggedIn} = useAuthSession();
+  useEffect(() => {
+    loadAuthSession();
+  }, []);
+
+  // Don't mount the navigator until we know which screen to start on —
+  // initialRouteName is only read on first render, so picking it before
+  // the stored session is loaded would always start at Splash.
+  if (!authLoaded) return null;
+
   return (
     <SafeAreaProvider>
       {/* Sane baseline for every screen that doesn't set its own (Splash,
@@ -166,7 +180,7 @@ setInterval(async () => {
       <NavigationContainer>
 
         <Stack.Navigator
-          initialRouteName="Splash"
+          initialRouteName={isLoggedIn ? 'MainTabs' : 'Splash'}
           screenOptions={{
             headerShown: false,
             animation: 'none',

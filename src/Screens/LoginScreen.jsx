@@ -36,13 +36,11 @@ const LoginScreen = ({navigation}) => {
   };
 
   const handleSendOtp = async () => {
-          navigation.navigate('OtpAuth', {mobileNumber});
-
     if (!canContinue || sending) return;
     setSending(true);
     setErrorMessage(null);
     try {
-     // await sendOtp(mobileNumber.trim());
+     await sendOtp(mobileNumber.trim());
       navigation.navigate('OtpAuth', {mobileNumber});
     } catch (err) {
       setErrorMessage(err.message);

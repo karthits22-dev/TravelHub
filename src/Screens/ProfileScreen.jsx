@@ -14,6 +14,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {INITIAL_RENEWALS} from '../Data/renewalDocuments';
 import {getRenewalStatus} from '../Utils/renewalStatus';
+import {logout} from '../Services/AuthSession';
 
 const DEEP_GREEN = '#0F3D34';
 const CREAM = '#F5F0E4';
@@ -67,6 +68,7 @@ const MENU_ITEMS = [
   },
   {id: 'driver', label: 'Driver Dashboard', icon: 'car-outline'},
   {id: 'hotelPartner', label: 'Hotel Partner Dashboard', icon: 'business-outline'},
+  {id: 'logout', label: 'Log Out', icon: 'log-out-outline'},
 ];
 
 const ProfileScreen = ({navigation}) => {
@@ -84,8 +86,30 @@ const ProfileScreen = ({navigation}) => {
     }, []),
   );
 
+  const handleLogout = useCallback(() => {
+    Alert.alert('Log out', 'Are you sure you want to log out?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          // ProfileScreen's `navigation` is MainTabs' own tab navigator, and
+          // Login lives as a sibling of MainTabs in the root stack — resetting
+          // on the tab navigator itself would look for a "Login" tab and fail,
+          // so the reset has to go through the parent (root stack) navigator.
+          navigation?.getParent?.()?.reset({index: 0, routes: [{name: 'Login'}]});
+        },
+      },
+    ]);
+  }, [navigation]);
+
   const handleMenuPress = useCallback(
     item => {
+      if (item.id === 'logout') {
+        handleLogout();
+        return;
+      }
       if (item.route) {
         navigation?.navigate?.(item.route);
         return;
@@ -95,7 +119,7 @@ const ProfileScreen = ({navigation}) => {
       }
       Alert.alert(item.label, 'This is coming soon.');
     },
-    [navigation],
+    [navigation, handleLogout],
   );
 
   const currentLanguage = LANGUAGES.find(l => l.code === languageCode)?.label;

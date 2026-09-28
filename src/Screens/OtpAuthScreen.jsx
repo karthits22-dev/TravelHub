@@ -13,6 +13,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import {sendOtp, verifyOtp} from '../Services/AuthService';
+import {login} from '../Services/AuthSession';
 import NumericKeypad from '../Components/Common/NumericKeypad';
 
 const OTP_ANIMATION = require('../assets/videos/otp-verification.mp4');
@@ -97,14 +98,13 @@ const OtpVerificationScreen = ({navigation, route}) => {
   // `code` is passed explicitly when the last digit is keyed, because the
   // `otp` state from this render doesn't include the digit just set.
   const handleVerify = async (code = otp) => {
-        navigation.reset({index: 0, routes: [{name: 'MainTabs'}]});
-
     if (code.length !== OTP_LENGTH || verifying || verified) return;
     setVerifying(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-    //  await verifyOtp(mobileNumber, code);
+      await verifyOtp(mobileNumber, code);
+      await login(mobileNumber);
       setVerified(true);
       setSuccessMessage('OTP verified successfully');
       setVerifying(false);
